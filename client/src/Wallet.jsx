@@ -1,30 +1,41 @@
-import server from "./server";
+import { useState, useEffect } from "react";
+import { walletStore } from "./WalletStore";
 
-function Wallet({ address, setAddress, balance, setBalance }) {
-  async function onChange(evt) {
-    const address = evt.target.value;
+function Wallet({ setAddress, balance }) {
+  const [currentAddress, setCurrentAddress] = useState("");
+
+  const generateNewWallet = () => {
+    const address = walletStore.generateNewWallet();
+    setCurrentAddress(address);
     setAddress(address);
-    if (address) {
-      const {
-        data: { balance },
-      } = await server.get(`balance/${address}`);
-      setBalance(balance);
-    } else {
-      setBalance(0);
-    }
-  }
+  };
 
   return (
-    <div className="container wallet">
-      <h1>Your Wallet</h1>
-
-      <label>
-        Wallet Address
-        <input placeholder="Type an address, for example: 0x1" value={address} onChange={onChange}></input>
-      </label>
-
-      <div className="balance">Balance: {balance}</div>
-    </div>
+      <div className="container wallet">
+        <h1>Your Wallet</h1>
+        {!currentAddress ? (
+            <button onClick={generateNewWallet} className="button">
+              Generate New Wallet
+            </button>
+        ) : (
+            <div>
+              <label>
+                Wallet Address
+                <input
+                    type="text"
+                    value={currentAddress}
+                    readOnly
+                    style={{
+                      width: '100%',
+                      fontFamily: 'monospace',
+                      padding: '8px'
+                    }}
+                />
+              </label>
+              <div className="balance">Balance: {balance}</div>
+            </div>
+        )}
+      </div>
   );
 }
 
